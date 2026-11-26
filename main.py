@@ -18,6 +18,10 @@ import sys
 
 LINE = "Performance review: exceeds expectations at delegating his job to me, then reviewing my work as his own."
 
+# The sealed gate counts characters, not bytes; the line is ASCII, so
+# both counts agree, but check both to stay valid under either reading.
+MAX_CHARS = 140
+
 
 def main():
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output/entry.txt")
@@ -31,8 +35,10 @@ def main():
     os.makedirs(directory, exist_ok=True)
 
     # Self-check gate: 1-140 chars, single line, not whitespace-only.
-    if not (1 <= len(LINE) <= 140):
+    if not (1 <= len(LINE) <= MAX_CHARS):
         sys.exit("gate failed: length %d not in 1..140" % len(LINE))
+    if len(LINE.encode("utf-8")) > MAX_CHARS:
+        sys.exit("gate failed: byte length over 140")
     if LINE.strip() == "":
         sys.exit("gate failed: line is whitespace-only")
     if "\n" in LINE or "\r" in LINE:
